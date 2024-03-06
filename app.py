@@ -1,18 +1,25 @@
 import streamlit as st
-from your_module import generate_strategies, run_backtest, optimize_strategy
+from your_strategy_module import MyStrategy  # Import your strategy
+from backtesting import Backtest
 
-st.title('Autotest Strategy Dashboard')
+st.title('Strategy Optimization and Visualization')
 
-if st.button('Generate Strategies'):
-    strategies = generate_strategies()
-    st.write(strategies)
+# Load your historical data
+historical_data = load_historical_data()
 
-if st.button('Run Backtest'):
-    backtest_results = run_backtest(strategies)
-    st.dataframe(backtest_results)
+bt = Backtest(historical_data, MyStrategy)
+result = bt.run()
 
-if st.button('Optimize Strategies'):
-    optimized_strategies = optimize_strategy(backtest_results)
-    st.write(optimized_strategies)
+# Display the plot
+st.pyplot(result.plot())
 
-# Add more interactive widgets as needed to display data or control the processes
+# Display textual results
+st.subheader('Backtesting Metrics')
+for key, value in result._trade_data.items():
+    st.text(f"{key}: {value}")
+
+if st.button('Optimize Strategy'):
+    # Define your parameter grid
+    params = {'param1': range(1, 20), 'param2': range(10, 100)}
+    opt_results = bt.optimize(**params)
+    st.write(opt_results._trade_data)  # Adjust as per the actual results structure
