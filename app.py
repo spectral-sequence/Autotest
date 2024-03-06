@@ -1,25 +1,41 @@
 import streamlit as st
-from your_strategy_module import MyStrategy  # Import your strategy
-from backtesting import Backtest
+from openai_integration import query_openai_assistant  # Ensure this module is set up to interact with OpenAI API
 
-st.title('Strategy Optimization and Visualization')
+# Function to interact with an assistant to load historical data
+def load_historical_data(assistant_id, openai_api_key):
+    # Data loading logic using OpenAI Assistant
+    historical_data = query_openai_assistant(assistant_id, "load historical data", openai_api_key)
+    return historical_data
 
-# Load your historical data
-historical_data = load_historical_data()
+# Function to interact with an assistant to generate strategies
+def generate_strategy(assistant_id, openai_api_key):
+    # Strategy generation logic using OpenAI Assistant
+    strategy = query_openai_assistant(assistant_id, "generate strategy", openai_api_key)
+    return strategy
 
-bt = Backtest(historical_data, MyStrategy)
-result = bt.run()
+# Function to interact with an assistant for backtesting and return results
+def backtest_strategy(assistant_id, strategy, openai_api_key):
+    # Backtesting logic using OpenAI Assistant
+    results = query_openai_assistant(assistant_id, f"backtest {strategy}", openai_api_key)
+    return results
 
-# Display the plot
-st.pyplot(result.plot())
+# Assuming you have setup to securely fetch your OpenAI API Key
+openai_api_key = st.secrets["OPENAI_API_KEY"]
 
-# Display textual results
-st.subheader('Backtesting Metrics')
-for key, value in result._trade_data.items():
-    st.text(f"{key}: {value}")
+st.title('Autotest Strategy Analysis')
 
-if st.button('Optimize Strategy'):
-    # Define your parameter grid
-    params = {'param1': range(1, 20), 'param2': range(10, 100)}
-    opt_results = bt.optimize(**params)
-    st.write(opt_results._trade_data)  # Adjust as per the actual results structure
+# Load and display historical data
+historical_data = load_historical_data('assistant_id_for_data', openai_api_key)
+st.write("Historical Data:")
+st.dataframe(historical_data)
+
+# Generate and display strategy
+strategy = generate_strategy('assistant_id_for_strategy', openai_api_key)
+st.write("Generated Strategy:")
+st.text(strategy)
+
+# Backtest and display results
+backtest_results = backtest_strategy('assistant_id_for_backtesting', strategy, openai_api_key)
+st.write("Backtesting Results:")
+st.text(backtest_results['text'])
+st.pyplot(backtest_results['plot'])
